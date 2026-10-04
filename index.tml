@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es"> 
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
@@ -9,193 +9,727 @@
     <meta property="og:description" content="SIMOPRES PRO - Sistema Integrado de Monitorización Presupuestaria del Gobierno Autónomo Municipal de San Borja (GAMSB)." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    
+
     <!-- Scripts Externos (CDNs) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
-
-        :root {
-            --font-sans: 'Inter', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --bg-app: #020617;
-            --text-main: #f1f5f9;
-            --panel-bg: rgba(15, 23, 42, 0.8);
-            --border-panel: rgba(51, 65, 85, 0.5);
-            --card-bg: #0f172a;
-            --card-border: #1e293b;
-            --inner-relief: #020617;
-        }
-
-        .dark-mode {
-            --bg-app: #020617;
-            --text-main: #f1f5f9;
-            --panel-bg: rgba(15, 23, 42, 0.8);
-            --border-panel: rgba(51, 65, 85, 0.5);
-            --card-bg: #0f172a;
-            --card-border: #1e293b;
-            --inner-relief: #020617;
-        }
-
-        .green-mode {
-            --bg-app: #020d06;
-            --text-main: #e2f0e7;
-            --panel-bg: rgba(6, 26, 14, 0.85);
-            --border-panel: rgba(16, 70, 36, 0.5);
-            --card-bg: #041f0f;
-            --card-border: #0b3d1f;
-            --inner-relief: #010703;
-        }
-
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            max-width: 100vw;
-            overflow-x: hidden;
-            background-color: var(--bg-app);
-            color: var(--text-main);
-            font-family: var(--font-sans);
-            font-size: 14px;
-            transition: background-color 0.5s ease, color 0.5s ease;
-        }
-
-        #root {
-            width: 100%;
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
-
-        @media (max-width: 640px) {
-            html, body { font-size: 12px; }
-        }
-
-        /* Estilos Avanzados de Relieve y Cristal */
-        .glass-panel {
-            background: var(--panel-bg);
-            backdrop-filter: blur(24px);
-            border: 1px solid var(--border-panel);
-            box-shadow: 
-                0 4px 6px -1px rgba(0, 0, 0, 0.05), 
-                0 10px 40px -5px rgba(0, 0, 0, 0.1),
-                inset 0 1px 1px var(--border-panel);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .relief-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            box-shadow: 
-                0 10px 15px -3px rgba(0, 0, 0, 0.05),
-                0 4px 6px -2px rgba(0, 0, 0, 0.03);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .relief-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 
-                0 30px 60px -12px rgba(0, 0, 0, 0.2),
-                0 18px 36px -18px rgba(0, 0, 0, 0.2);
-            border-color: #3b82f6;
-        }
-
-        .inner-relief {
-            box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.08), inset -4px -4px 12px rgba(255, 255, 255, 0.02);
-            background: var(--inner-relief);
-        }
-
-        .dark-mode .inner-relief {
-            box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.5), inset -4px -4px 12px rgba(255, 255, 255, 0.01);
-        }
-
-        .neon-glow-blue {
-            border-color: rgba(59,130,246,0.3);
-            box-shadow: 0 10px 25px -5px rgba(59,130,246,0.15);
-        }
-
-        .neon-glow-rose {
-            border-color: rgba(244,63,94,0.3);
-            box-shadow: 0 10px 25px -5px rgba(244,63,94,0.15);
-        }
-
-        @keyframes scanline {
-            0% { transform: translateY(-100%); opacity: 0; }
-            50% { opacity: 0.5; }
-            100% { transform: translateY(1000%); opacity: 0; }
-        }
-        
-        .scanline {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100px;
-            background: linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.1), transparent);
-            animation: scanline 8s linear infinite; pointer-events: none;
-        }
-
-        .green-mode .relief-card:hover {
-            border-color: #10b981;
-        }
-
-        .green-mode .scanline {
-            background: linear-gradient(to bottom, transparent, rgba(16, 185, 129, 0.1), transparent);
-        }
-
-        .green-mode .neon-glow-blue {
-            border-color: rgba(16, 185, 129, 0.3);
-            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.15);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
-
-        /* Animation for pulse alerts */
-        @keyframes subtle-pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
-        }
-        .alert-pulse { animation: subtle-pulse 2s infinite ease-in-out; }
-
-        /* Responsive Modal Fixes */
-        .modal-container {
-            max-height: 90vh;
-            overflow-y: auto;
-            scrollbar-width: thin;
-        }
-        .modal-container::-webkit-scrollbar { width: 4px; }
-        .modal-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-    
-        /* =========================
-           DONUTS PREMIUM 3D
-        ========================= */
-
-        @keyframes donutFloat {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
-            100% { transform: translateY(0px); }
-        }
-
-        @keyframes donutGlow {
-            0% { filter: drop-shadow(0 0 10px rgba(59,130,246,0.3)); }
-            50% { filter: drop-shadow(0 0 30px rgba(59,130,246,0.7)); }
-            100% { filter: drop-shadow(0 0 10px rgba(59,130,246,0.3)); }
-        }
-
-        canvas {
-            animation:
-                donutFloat 5s ease-in-out infinite,
-                donutGlow 4s ease-in-out infinite;
-        }
-
-</style>
+    <style>@import "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap";:root{--font-sans:"Inter", sans-serif;--font-mono:"JetBrains Mono", monospace;--bg-app:#020617;--text-main:#f1f5f9;--panel-bg:#0f172acc;--border-panel:#33415580;--card-bg:#0f172a;--card-border:#1e293b;--inner-relief:#020617}.dark-mode{--bg-app:#020617;--text-main:#f1f5f9;--panel-bg:#0f172acc;--border-panel:#33415580;--card-bg:#0f172a;--card-border:#1e293b;--inner-relief:#020617}.green-mode{--bg-app:#020d06;--text-main:#e2f0e7;--panel-bg:#061a0ed9;--border-panel:#10462480;--card-bg:#041f0f;--card-border:#0b3d1f;--inner-relief:#010703}html,body{background-color:var(--bg-app);width:100%;max-width:100vw;color:var(--text-main);font-family:var(--font-sans);margin:0;padding:0;font-size:14px;transition:background-color .5s,color .5s;overflow-x:hidden}#root{width:100%;max-width:100vw;overflow-x:hidden}@media (width<=640px){html,body{font-size:12px}}.glass-panel{background:var(--panel-bg);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--border-panel);box-shadow:0 4px 6px -1px #0000000d, 0 10px 40px -5px #0000001a, inset 0 1px 1px var(--border-panel);position:relative;overflow:hidden}.relief-card{background:var(--card-bg);border:1px solid var(--card-border);transition:all .4s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 10px 15px -3px #0000000d,0 4px 6px -2px #00000008}.relief-card:hover{border-color:#3b82f6;transform:translateY(-8px)scale(1.02);box-shadow:0 30px 60px -12px #0003,0 18px 36px -18px #0003}.inner-relief{background:var(--inner-relief);box-shadow:inset 4px 4px 12px #00000014,inset -4px -4px 12px #ffffff05}.dark-mode .inner-relief{box-shadow:inset 4px 4px 12px #00000080,inset -4px -4px 12px #ffffff03}.neon-glow-blue{border-color:#3b82f64d;box-shadow:0 10px 25px -5px #3b82f626}.neon-glow-rose{border-color:#f43f5e4d;box-shadow:0 10px 25px -5px #f43f5e26}.green-mode .relief-card:hover{border-color:#10b981}.green-mode .neon-glow-blue{border-color:#10b9814d;box-shadow:0 10px 25px -5px #10b98126}.custom-scrollbar::-webkit-scrollbar{width:6px}.custom-scrollbar::-webkit-scrollbar-track{background:#0003}.custom-scrollbar::-webkit-scrollbar-thumb{background:#ffffff1a;border-radius:10px}@keyframes subtle-pulse{0%{opacity:.8;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}to{opacity:.8;transform:scale(1)}}.alert-pulse{animation:2s ease-in-out infinite subtle-pulse}.modal-container{scrollbar-width:thin;max-height:90vh;overflow-y:auto}.modal-container::-webkit-scrollbar{width:4px}.modal-container::-webkit-scrollbar-thumb{background:#ffffff1a;border-radius:10px}@keyframes donutFloat{0%{transform:translateY(0)}50%{transform:translateY(-6px)}to{transform:translateY(0)}}@keyframes donutGlow{0%{filter:drop-shadow(0 0 10px #3b82f64d)}50%{filter:drop-shadow(0 0 30px #3b82f6b3)}to{filter:drop-shadow(0 0 10px #3b82f64d)}}canvas{animation:5s ease-in-out infinite donutFloat,4s ease-in-out infinite donutGlow}</style>
+  <script type="module" crossorigin src="/assets/index-8sFIm7kP.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Dg0t1cIf.css">
 </head>
 <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Script de compatibilidad universal: Funciona tanto al hacer doble clic en el archivo index.html como en Vite -->
+    <script type="text/babel">
+        // Si la aplicación ya fue montada por Vite en desarrollo, no sobreescribir
+        if (window.__VITE_MOUNTED__) {
+            console.log("SIMOPRES PRO inicializado a través de Vite.");
+        } else {
+            const { useState, useEffect, useMemo, useRef } = React;
+            
+            const getMotion = () => {
+                const m = window.Motion || window.framerMotion;
+                if (m) return m;
+                const silent = (tag) => tag;
+                const fallback = { AnimatePresence: ({children}) => children };
+                ['div', 'button', 'section', 'header', 'main', 'h1', 'h2', 'h3', 'h4', 'p', 'span', 'i'].forEach(tag => {
+                    fallback[tag] = silent(tag);
+                });
+                return fallback;
+            };
+
+            const MotionInstance = getMotion();
+            const motion = MotionInstance.motion || MotionInstance;
+            const AnimatePresence = MotionInstance.AnimatePresence;
+
+            const API_URL = "https://script.google.com/macros/s/AKfycbyTm8hRK2euwEAGB-5n9kz2vXDCGYgPdIOuL311AAsQmSBo-lz9MQewoSavn_mvQDPb/exec";
+            const BACKUP_URL = "/api/presupuesto/backup";
+
+            // Base de respaldo integrada directamente en caso de ejecución local por archivo (file:///)
+            const DATOS_RESPALDO_OFFLINE = {
+                isOfflineFallback: true,
+                fecha: "2026-03-31T00:00:00.000Z",
+                global: { vigente: 45890250.00, devengado: 18245120.00, preventivo: 22150800.00, saldo: 27645130.00 },
+                datos: [
+                    { programaId: "000", programaNom: "EJECUTIVO MUNICIPAL", objeto: "1.1.7", fte: "20", org: "113", descripcion: "SUELDOS DEL PERSONAL PERMANENTE", vigente: 1250000.00, devengado: 450000.00, preventivo: 520000.00, saldo: 800000.00 },
+                    { programaId: "1800002", programaNom: "FORTALECIMIENTO UNIDAD DE MAESTRANZA", objeto: "3.4.1.10", fte: "41", org: "119", descripcion: "COMBUSTIBLES, LUBRICANTES Y DERIVADOS PARA MAQUINARIA PESADA", vigente: 850000.00, devengado: 380000.00, preventivo: 450000.00, saldo: 470000.00 },
+                    { programaId: "1800002", programaNom: "FORTALECIMIENTO UNIDAD DE MAESTRANZA", objeto: "3.9.8", fte: "41", org: "119", descripcion: "REPUESTOS Y ACCESORIOS PARA EQUIPO PESADO Y VOLQUETAS", vigente: 320000.00, devengado: 115000.00, preventivo: 145000.00, saldo: 205000.00 },
+                    { programaId: "2000001", programaNom: "GESTION DE SALUD INTEGRAL MUNICIPAL", objeto: "3.4.2", fte: "20", org: "113", descripcion: "PRODUCTOS QUÍMICOS Y FARMACÉUTICOS", vigente: 980000.00, devengado: 420000.00, preventivo: 510000.00, saldo: 560000.00 },
+                    { programaId: "2100001", programaNom: "APOYO A LA GESTION EDUCATIVA", objeto: "2.4.1.10", fte: "20", org: "113", descripcion: "MANTENIMIENTO Y REPARACION DE UNIDADES EDUCATIVAS", vigente: 650000.00, devengado: 210000.00, preventivo: 290000.00, saldo: 440000.00 },
+                    { programaId: "2200001", programaNom: "FOMENTO Y DESARROLLO DEL DEPORTE", objeto: "3.1.1.20", fte: "20", org: "113", descripcion: "ALIMENTACIÓN Y REFRIGERIOS PARA EVENTOS DEPORTIVOS", vigente: 180000.00, devengado: 75000.00, preventivo: 95000.00, saldo: 105000.00 },
+                    { programaId: "1700001", programaNom: "INFRAESTRUCTURA URBANA Y VIAL", objeto: "4.2.3.10", fte: "41", org: "119", descripcion: "CONSTRUCCIÓN DE PAVIMENTO Y OBRAS DE DRENAJE URBANO", vigente: 3500000.00, devengado: 1650000.00, preventivo: 2100000.00, saldo: 1850000.00 },
+                    { programaId: "3100001", programaNom: "GESTIÓN INTEGRAL DE RIESGOS", objeto: "4.3.7", fte: "20", org: "113", descripcion: "OTRA MAQUINARIA Y EQUIPO PARA EMERGENCIAS", vigente: 420000.00, devengado: 150000.00, preventivo: 180000.00, saldo: 270000.00 },
+                    { programaId: "3300001", programaNom: "SEGURIDAD CIUDADANA Y ORDEN PÚBLICO", objeto: "3.3.3", fte: "20", org: "113", descripcion: "PRENDAS DE VESTIR Y EQUIPAMIENTO DE GUARDIA MUNICIPAL", vigente: 240000.00, devengado: 90000.00, preventivo: 110000.00, saldo: 150000.00 }
+                ]
+            };
+
+            const GRUPOS_CONFIG = {
+                "000": { n: "Ejecutivo Municipal", i: "Briefcase" },
+                "001": { n: "Concejo Municipal", i: "Users" },
+                "097": { n: "Activos Financieros", i: "Coins" },
+                "099": { n: "Deuda Pública", i: "Handshake" },
+                "100": { n: "Producción Agropecuaria", i: "Sprout" },
+                "110": { n: "Saneamiento Básico", i: "Droplets" },
+                "130": { n: "Medio Ambiente", i: "HeartPulse" },
+                "140": { n: "Aseo Urbano y Residuos", i: "Trash2" },
+                "160": { n: "Alumbrado Público", i: "Lightbulb" },
+                "170": { n: "Infraestructura Urbana", i: "Building2" },
+                "180": { n: "Caminos Vecinales", i: "Milestone" },
+                "190": { n: "Servicio de Catastro", i: "MapPin" },
+                "200": { n: "Gestión de Salud", i: "Hospital" },
+                "210": { n: "Gestión de Educación", i: "GraduationCap" },
+                "220": { n: "Deporte", i: "Trophy" },
+                "230": { n: "Cultura y Patrimonio", i: "Landmark" },
+                "240": { n: "Turismo", i: "Camera" },
+                "250": { n: "Vulnerables y Mujer", i: "Accessibility" },
+                "251": { n: "Prevención Violencia", i: "UserPlus" },
+                "260": { n: "Niñez y Adolescencia", i: "Baby" },
+                "270": { n: "Vialidad y Transporte", i: "Bus" },
+                "280": { n: "Defensa Consumidor", i: "ShieldCheck" },
+                "310": { n: "Gestión de Riesgos", i: "AlertCircle" },
+                "319": { n: "Desastres / Emergencias", i: "CloudLightning" },
+                "330": { n: "Seguridad Ciudadana", i: "ShieldCheck" },
+                "340": { n: "Fortalecimiento Inst.", i: "Settings" },
+                "350": { n: "Desarrollo Económico", i: "Handshake" },
+            };
+
+            const formatCurrency = (n) => 
+                new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+
+            const getAlertStatus = (vigente, preventivo, saldo) => {
+                const pct = vigente > 0 ? (preventivo / vigente) * 100 : 0;
+                if (pct > 100) return { level: 'critical', color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200', ring: 'ring-rose-100', icon: 'ShieldAlert', label: 'EXCEDIDO' };
+                if (pct > 70) return { level: 'warning', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', ring: 'ring-amber-100', icon: 'AlertTriangle', label: 'SALDO BAJO' };
+                return null;
+            };
+
+            const MAPA_ACCESO_SEGURO = {
+                "sb1808": { role: "admin", restrictedUnit: null, restrictedProgram: null, name: "Ejecutivo Municipal (Acceso Total)" },
+                "salud111": { role: "unit", restrictedUnit: "200", restrictedProgram: null, name: "Unidad de Salud" },
+                "marcos111": { role: "unit", restrictedUnit: "210", restrictedProgram: null, name: "Unidad de Educación" },
+                "futbol111": { role: "unit", restrictedUnit: "220", restrictedProgram: null, name: "Unidad de Deportes" },
+                "obras_secreta_2026": { role: "unit", restrictedUnit: "170", restrictedProgram: null, name: "Unidad de Obras Públicas" },
+                "maestranza_secreta_2026": { role: "unit", restrictedUnit: "180", restrictedProgram: null, name: "Unidad de Maestranza / Caminos" },
+                "riesgos_secreta_2026": { role: "unit", restrictedUnit: "310", restrictedProgram: null, name: "Gestión de Riesgos" },
+                "seguridad_secreta_2026": { role: "unit", restrictedUnit: "330", restrictedProgram: null, name: "Seguridad Ciudadana" },
+                "maes777": { role: "program", restrictedUnit: "180", restrictedProgram: "1800002", name: "Fortalecimiento Unidad de Maestranza" }
+            };
+
+            const OBTENER_RESTRICCION = (pass) => {
+                if (!pass) return null;
+                const trimmed = pass.trim().toLowerCase();
+                if (MAPA_ACCESO_SEGURO[trimmed]) return MAPA_ACCESO_SEGURO[trimmed];
+
+                const customAliases = {
+                    "salud200": "200", "salud": "200", "educacion210": "210", "educacion": "210",
+                    "deporte220": "220", "deportes220": "220", "obras170": "170", "caminos180": "180",
+                    "maestranza": "180", "maestranza180": "180", "riesgos310": "310", "seguridad330": "330"
+                };
+                if (customAliases[trimmed]) {
+                    const unitId = customAliases[trimmed];
+                    return { role: "unit", restrictedUnit: unitId, name: GRUPOS_CONFIG[unitId]?.n || `Programa ${unitId}` };
+                }
+
+                const keywordMappings = [
+                    { keyword: "maestranza", unitId: "180" }, { keyword: "salud", unitId: "200" },
+                    { keyword: "educacion", unitId: "210" }, { keyword: "deporte", unitId: "220" },
+                    { keyword: "obras", unitId: "170" }, { keyword: "caminos", unitId: "180" },
+                    { keyword: "riesgos", unitId: "310" }, { keyword: "seguridad", unitId: "330" }
+                ];
+                for (const map of keywordMappings) {
+                    if (trimmed.includes(map.keyword)) {
+                        return { role: "unit", restrictedUnit: map.unitId, name: GRUPOS_CONFIG[map.unitId]?.n || `Programa ${map.unitId}` };
+                    }
+                }
+
+                const match = trimmed.match(/^(gamsb|conq)(\d{3})$/);
+                if (match && GRUPOS_CONFIG[match[2]]) {
+                    return { role: "unit", restrictedUnit: match[2], name: GRUPOS_CONFIG[match[2]].n };
+                }
+
+                const numberMatch = trimmed.match(/(\d{3,25})/);
+                if (numberMatch) {
+                    const numStr = numberMatch[1];
+                    const unitId = numStr.substring(0, 3);
+                    if (GRUPOS_CONFIG[unitId]) {
+                        if (numStr.length >= 7) {
+                            return { role: "program", restrictedUnit: unitId, restrictedProgram: numStr, name: `Categoría Programática ${numStr}` };
+                        } else {
+                            return { role: "unit", restrictedUnit: unitId, name: GRUPOS_CONFIG[unitId].n };
+                        }
+                    }
+                }
+                return null;
+            };
+
+            const getPartidaExplanation = (objeto, descripcion) => {
+                const code = String(objeto || '').trim();
+                const firstDigit = code.charAt(0);
+                switch (firstDigit) {
+                    case "1":
+                        return {
+                            uso: `Servicios Personales: Recursos destinados a cubrir las remuneraciones salariales de los servidores públicos, aportes de ley a la seguridad social y subsidios familiares bajo: "${descripcion}".`,
+                            ejemplos: ["Planillas salariales de personal de planta u eventuales que apoyan el programa.", "Aportes patronales obligatorios para jubilación, seguro de salud y subsidios de ley."]
+                        };
+                    case "2":
+                        return {
+                            uso: `Servicios No Personales: Gastos para la contratación de energía, agua, telecomunicaciones, alquileres, consultores individuales y mantenimientos periódicos para: "${descripcion}".`,
+                            ejemplos: ["Servicios especializados de terceros o consultorías técnicas.", "Luz eléctrica institucional, conectividad de datos o viáticos reglamentarios."]
+                        };
+                    case "3":
+                        return {
+                            uso: `Materiales y Suministros: Adquisición de materiales de consumo, insumos médicos, repuestos mecánicos menores, combustibles y lubricantes para: "${descripcion}".`,
+                            ejemplos: ["Combustibles y lubricantes de maquinaria pesada o herramientas menores.", "Útiles de escritorio, materiales de higiene y repuestos vehiculares."]
+                        };
+                    case "4":
+                        return {
+                            uso: `Activos Reales / Inversión Pública: Recursos dirigidos a financiar adquisición de bienes de capital, equipo tecnológico, vehículos u obras civiles para: "${descripcion}".`,
+                            ejemplos: ["Financiamiento de obras civiles de construcción o ampliación de infraestructura.", "Equipo de computación, maquinaria operativa o supervisión técnica."]
+                        };
+                    default:
+                        return {
+                            uso: `Partida de Gasto Presupuestaria: Recursos asignados reglamentariamente en el plan de operaciones bajo el programa: "${descripcion}".`,
+                            ejemplos: ["Gastos directos autorizados según el clasificador presupuestario vigente para la gestión anual."]
+                        };
+                }
+            };
+
+            const getCatTheme = (id, isGreen, isDark) => {
+                if (isGreen) {
+                    return { bg: 'bg-emerald-950/40', border: 'border-emerald-500/30', accent: 'text-emerald-400', iconBg: 'bg-emerald-500', shadow: 'shadow-emerald-500/10', modalBg: 'bg-gradient-to-br from-[#020d06] to-emerald-950/50', chart: '#10b981' };
+                }
+                const themes = [
+                    { bg: 'bg-blue-950/40', border: 'border-blue-500/30', accent: 'text-blue-400', iconBg: 'bg-blue-500', shadow: 'shadow-blue-500/10', modalBg: 'bg-gradient-to-br from-slate-900 to-blue-950/50', chart: '#3b82f6' },
+                    { bg: 'bg-indigo-950/40', border: 'border-indigo-500/30', accent: 'text-indigo-400', iconBg: 'bg-indigo-500', shadow: 'shadow-indigo-500/10', modalBg: 'bg-gradient-to-br from-slate-900 to-indigo-950/50', chart: '#6366f1' },
+                    { bg: 'bg-emerald-950/40', border: 'border-emerald-500/30', accent: 'text-emerald-400', iconBg: 'bg-emerald-500', shadow: 'shadow-emerald-500/10', modalBg: 'bg-gradient-to-br from-slate-900 to-emerald-950/50', chart: '#10b981' }
+                ];
+                const idx = parseInt(id) % themes.length;
+                return themes[isNaN(idx) ? 0 : idx];
+            };
+
+            const LucideIcon = ({ name, className, size = 20 }) => {
+                return <i data-lucide={name} className={className} style={{ width: size, height: size, display: 'inline-block' }}></i>;
+            };
+
+            // DonutChart que calcula exactamente el porcentaje de Preventivo
+            const DonutChart = ({ vigente, preventivo, saldo, customColor = '#3b82f6', isDark }) => {
+                const canvasRef = useRef(null);
+                const chartRef = useRef(null);
+                const pct = vigente > 0 ? (preventivo / vigente) * 100 : 0;
+                const saldoNeto = typeof saldo !== 'undefined' ? saldo : Math.max(0, vigente - preventivo);
+
+                useEffect(() => {
+                    if (typeof Chart === 'undefined' || !canvasRef.current) return;
+                    if (chartRef.current) chartRef.current.destroy();
+
+                    const ctx = canvasRef.current.getContext('2d');
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                    gradient.addColorStop(0, '#60a5fa');
+                    gradient.addColorStop(0.35, customColor);
+                    gradient.addColorStop(1, '#1d4ed8');
+
+                    const gradient2 = ctx.createLinearGradient(0, 0, 300, 300);
+                    gradient2.addColorStop(0, 'rgba(255,255,255,0.08)');
+                    gradient2.addColorStop(1, 'rgba(255,255,255,0.01)');
+
+                    chartRef.current = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: [preventivo, saldoNeto],
+                                backgroundColor: [gradient, gradient2],
+                                borderColor: ['rgba(255,255,255,0.35)', 'rgba(255,255,255,0.03)'],
+                                borderWidth: 2,
+                                hoverOffset: 18,
+                                borderRadius: 18,
+                                spacing: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '72%',
+                            animation: { animateRotate: true, animateScale: true, duration: 2000 },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    enabled: true,
+                                    callbacks: {
+                                        label: function(context) {
+                                            const name = context.dataIndex === 0 ? 'Preventivo' : 'Saldo Disp. Neto';
+                                            return ' ' + name + ': Bs. ' + formatCurrency(context.raw || 0);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    return () => { if (chartRef.current) chartRef.current.destroy(); };
+                }, [vigente, preventivo, saldoNeto, customColor, isDark]);
+
+                return (
+                    <div className="relative group w-44 h-44 sm:w-56 sm:h-56 flex items-center justify-center transition-all duration-500 hover:scale-105">
+                        <div className="absolute inset-0 rounded-full blur-3xl opacity-40 group-hover:opacity-70 transition-all duration-500" style={{ background: customColor }}></div>
+                        <canvas ref={canvasRef}></canvas>
+                        <div className="absolute w-[58%] h-[58%] rounded-full flex flex-col items-center justify-center border border-white/10 backdrop-blur-xl">
+                            <span className="text-3xl sm:text-5xl font-black font-mono text-white">{pct.toFixed(1)}%</span>
+                            <span className="mt-1 text-[10px] uppercase tracking-[0.3em] font-black text-blue-300">Preventivo</span>
+                        </div>
+                    </div>
+                );
+            };
+
+            const generateGroupPDF = (group) => {
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    alert("Cargando módulo PDF. Intente nuevamente en unos segundos.");
+                    return;
+                }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+                const marginX = 14;
+                const printableWidth = 215.9 - (2 * marginX);
+                const ahora = new Date();
+
+                doc.setFillColor(209, 213, 219);
+                doc.rect(0, 0, 300, 32, 'F');
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(22);
+                doc.setFont(undefined, 'bold');
+                doc.text('SIMOPRES PRO', marginX, 14);
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.text('Sistema Integrado de Monitorización Presupuestaria GAMSB', marginX, 21);
+                doc.setFontSize(8);
+                doc.setTextColor(75, 85, 99);
+                doc.text(`Generado el: ${ahora.toLocaleDateString('es-BO')} a las ${ahora.toLocaleTimeString('es-BO')}`, marginX, 27);
+
+                let currentY = 48;
+                doc.setTextColor(0,0,0);
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text(group.config.n.toUpperCase(), marginX, 42);
+
+                Object.values(group.programs).forEach(program => {
+                    if (currentY > 230) { doc.addPage(); currentY = 20; }
+                    doc.setFontSize(9);
+                    doc.setFont(undefined, 'bold');
+                    doc.setFillColor(209, 213, 219);
+                    doc.roundedRect(marginX, currentY, printableWidth, 10, 2, 2, 'F');
+                    doc.setTextColor(0,0,0);
+                    doc.text(`PROGRAMA ${program.id} - ${program.nombre}`.toUpperCase(), marginX + 4, currentY + 6.5);
+                    currentY += 14;
+
+                    const rows = (program.items || []).map(item => {
+                        const pPrev = Number(item.preventivo || item.devengado || 0);
+                        const pDev = Number(item.devengado || 0);
+                        const pSaldo = Number(item.vigente || 0) - pPrev;
+                        const pct = item.vigente > 0 ? ((pPrev / item.vigente) * 100).toFixed(2) : '0.00';
+                        return [
+                            item.objeto || '', item.fte || '', item.org || '', item.descripcion || '',
+                            formatCurrency(item.vigente || 0), formatCurrency(pDev), formatCurrency(pPrev),
+                            formatCurrency(pSaldo), `${pct}%`
+                        ];
+                    });
+
+                    doc.autoTable({
+                        startY: currentY,
+                        margin: { left: marginX, right: marginX },
+                        head: [['PARTIDA', 'FTE', 'ORG', 'DESCRIPCIÓN', 'VIGENTE', 'DEVENGADO', 'PREVENTIVO', 'SALDO NETO', '% PREV']],
+                        body: rows,
+                        styles: { fontSize: 7 },
+                        headStyles: { fillColor: [15, 23, 42] }
+                    });
+                    currentY = doc.lastAutoTable.finalY + 12;
+                });
+
+                doc.save(`${group.config.n}.pdf`);
+            };
+
+            function StandaloneApp() {
+                const [authString, setAuthString] = useState(sessionStorage.getItem('sigep_auth') || "");
+                const decodedAuth = useMemo(() => OBTENER_RESTRICCION(authString), [authString]);
+                const isAuthenticated = decodedAuth !== null;
+                const [password, setPassword] = useState("");
+                const [loginError, setLoginError] = useState(false);
+                const [data, setData] = useState(null);
+                const [loading, setLoading] = useState(true);
+                const [initialLoad, setInitialLoad] = useState(true);
+                const [showWelcome, setShowWelcome] = useState(false);
+                const [searchTerm, setSearchTerm] = useState("");
+                const [selectedGroupId, setSelectedGroupId] = useState(null);
+                const [selectedProgramId, setSelectedProgramId] = useState(null);
+                const [selectedItemIdx, setSelectedItemIdx] = useState(null);
+                const [isGreen, setIsGreen] = useState(() => localStorage.getItem('theme_green') === 'true');
+                const isDark = true;
+
+                useEffect(() => {
+                    document.body.classList.add('dark-mode');
+                    if (isGreen) document.body.classList.add('green-mode');
+                    else document.body.classList.remove('green-mode');
+                }, [isGreen]);
+
+                useEffect(() => {
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                });
+
+                const fetchData = async () => {
+                    setLoading(true);
+                    try {
+                        let res;
+                        try { res = await fetch(API_URL); } catch(e) { res = await fetch(BACKUP_URL); }
+                        if (!res || !res.ok) throw new Error("Fallback a datos embebidos");
+                        const json = await res.json();
+                        setData(json);
+                    } catch (err) {
+                        console.log("Cargando base de datos local embebida:", err);
+                        setData(DATOS_RESPALDO_OFFLINE);
+                    } finally {
+                        setLoading(false);
+                        if (initialLoad) {
+                            setTimeout(() => { setInitialLoad(false); setShowWelcome(true); }, 1500);
+                        }
+                    }
+                };
+
+                useEffect(() => {
+                    if (isAuthenticated) fetchData();
+                }, [isAuthenticated]);
+
+                const groupedData = useMemo(() => {
+                    if (!data || !data.datos) return [];
+                    const groups = {};
+                    data.datos.forEach(d => {
+                        const progIdStr = String(d.programaId);
+                        const gId = progIdStr.substring(0, 3);
+                        if (decodedAuth?.restrictedUnit && gId !== decodedAuth.restrictedUnit) return;
+                        if (decodedAuth?.restrictedProgram && !progIdStr.includes(decodedAuth.restrictedProgram)) return;
+
+                        if (!groups[gId]) {
+                            groups[gId] = {
+                                id: gId, config: GRUPOS_CONFIG[gId] || { n: "Otros", i: "Settings" },
+                                vigente: 0, devengado: 0, preventivo: 0, saldo: 0, programs: {}
+                            };
+                        }
+                        const g = groups[gId];
+                        const dPreventivo = Number(d.preventivo || d.devengado || 0);
+                        const dSaldo = Number(d.vigente) - dPreventivo;
+                        d.calculatedPreventivo = dPreventivo;
+                        d.calculatedSaldo = dSaldo;
+
+                        g.vigente += d.vigente; g.devengado += d.devengado; g.preventivo += dPreventivo; g.saldo += dSaldo;
+
+                        if (!g.programs[progIdStr]) {
+                            g.programs[progIdStr] = { id: progIdStr, nombre: d.programaNom, vigente: 0, devengado: 0, preventivo: 0, saldo: 0, items: [] };
+                        }
+                        const p = g.programs[progIdStr];
+                        p.vigente += d.vigente; p.devengado += d.devengado; p.preventivo += dPreventivo; p.saldo += dSaldo;
+                        p.items.push(d);
+                    });
+                    return Object.values(groups).sort((a, b) => a.id.localeCompare(b.id));
+                }, [data, decodedAuth]);
+
+                const globalMetrics = useMemo(() => {
+                    let vigente = 0, devengado = 0, preventivo = 0, saldo = 0;
+                    groupedData.forEach(g => {
+                        vigente += g.vigente; devengado += g.devengado; preventivo += g.preventivo; saldo += g.saldo;
+                    });
+                    return { vigente, devengado, ejecutado: devengado, preventivo, saldo };
+                }, [groupedData]);
+
+                const filteredGroups = useMemo(() => {
+                    if (!searchTerm) return groupedData;
+                    const term = searchTerm.toLowerCase();
+                    return groupedData.filter(g => g.config.n.toLowerCase().includes(term) || g.id.includes(term));
+                }, [groupedData, searchTerm]);
+
+                const currentGroup = selectedGroupId ? groupedData.find(g => g.id === selectedGroupId) : null;
+                const currentProgram = selectedProgramId && currentGroup ? currentGroup.programs[selectedProgramId] : null;
+                const currentItem = (selectedItemIdx !== null && currentProgram) ? currentProgram.items[selectedItemIdx] : null;
+
+                const handleLogin = (e) => {
+                    e.preventDefault();
+                    const pass = password.trim();
+                    const restriction = OBTENER_RESTRICCION(pass);
+                    if (restriction) {
+                        sessionStorage.setItem('sigep_auth', pass);
+                        setAuthString(pass);
+                    } else {
+                        setLoginError(true);
+                        setTimeout(() => setLoginError(false), 2000);
+                    }
+                };
+
+                const handleLogout = () => {
+                    sessionStorage.removeItem('sigep_auth');
+                    setAuthString("");
+                    setData(null);
+                    setInitialLoad(true);
+                    setShowWelcome(false);
+                    setPassword("");
+                    setSelectedGroupId(null);
+                    setSelectedProgramId(null);
+                    setSelectedItemIdx(null);
+                };
+
+                if (!isAuthenticated) {
+                    return (
+                        <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 sm:p-6 font-sans relative overflow-hidden">
+                            <div className="w-full max-w-md bg-slate-900/60 border border-slate-800 glass-panel p-6 sm:p-10 rounded-[32px] relief-card relative z-10">
+                                <div className="flex flex-col items-center mb-8">
+                                    <div className="p-4 bg-blue-600 rounded-3xl mb-4 shadow-xl shadow-blue-500/20">
+                                        <LucideIcon name="Lock" size={28} className="text-white" />
+                                    </div>
+                                    <h1 className="text-2xl font-black uppercase tracking-[0.2em] italic text-center">SIMOPRES <span className="text-blue-500">PRO</span></h1>
+                                    <p className="text-[10px] font-mono text-blue-400 uppercase tracking-[0.3em] mt-2 text-center">Acceso Directo • Unidad de Planificación</p>
+                                </div>
+                                <form onSubmit={handleLogin} className="space-y-5">
+                                    <input 
+                                        type="password" 
+                                        placeholder="CONTRASEÑA O CÓDIGO" 
+                                        value={password} 
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full bg-slate-800/60 border border-slate-700 text-white rounded-2xl py-3.5 px-5 text-sm font-mono tracking-widest outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+                                        autoFocus
+                                    />
+                                    {loginError && <p className="text-center text-rose-500 text-xs font-black uppercase">Acceso Denegado</p>}
+                                    <button type="submit" className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black uppercase text-xs tracking-[0.3em] transition-all">INGRESAR</button>
+                                </form>
+                                <div className="mt-8 pt-6 border-t border-slate-800 text-center">
+                                    <p className="text-[9px] text-slate-500 uppercase tracking-widest font-mono">GAMSB • GESTIÓN 2026</p>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                if (initialLoad) {
+                    return (
+                        <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+                            <div className="w-16 h-16 border-t-2 border-r-2 border-blue-500 rounded-full animate-spin mb-6"></div>
+                            <h2 className="text-2xl font-black tracking-widest uppercase">SIMOPRES PRO</h2>
+                            <p className="text-xs text-blue-400 font-mono mt-2 tracking-widest uppercase">Cargando base de datos...</p>
+                        </div>
+                    );
+                }
+
+                if (showWelcome && data) {
+                    return (
+                        <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 sm:p-6 font-sans">
+                            <div className="w-full max-w-4xl bg-slate-900/80 border border-slate-800 glass-panel p-6 sm:p-12 rounded-[40px] relief-card">
+                                <div className="text-center mb-8">
+                                    <span className="text-[10px] text-blue-400 uppercase tracking-widest font-mono bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Acceso Autorizado</span>
+                                    <h2 className="text-2xl sm:text-3xl font-black uppercase mt-3">{decodedAuth?.name || "Gestión Ejecutiva"}</h2>
+                                    <p className="text-xs text-slate-400 uppercase tracking-widest mt-1">Presupuesto GAMSB 2026</p>
+                                </div>
+                                <div className="flex flex-col lg:flex-row items-center justify-center gap-10 mb-10">
+                                    <DonutChart vigente={globalMetrics.vigente} preventivo={globalMetrics.preventivo} saldo={globalMetrics.vigente - globalMetrics.preventivo} isDark={isDark} />
+                                    <div className="space-y-3 w-full max-w-sm text-xs">
+                                        <div className="p-3.5 bg-slate-800/60 rounded-xl flex justify-between"><span>Vigente:</span><span className="font-mono font-bold">{formatCurrency(globalMetrics.vigente)}</span></div>
+                                        <div className="p-3.5 bg-indigo-950/40 text-indigo-400 rounded-xl flex justify-between"><span>Devengado:</span><span className="font-mono font-bold">{formatCurrency(globalMetrics.devengado)}</span></div>
+                                        <div className="p-3.5 bg-purple-950/40 text-purple-400 rounded-xl flex justify-between"><span>Preventivo:</span><span className="font-mono font-bold">{formatCurrency(globalMetrics.preventivo)}</span></div>
+                                        <div className="p-3.5 bg-amber-950/40 text-amber-400 rounded-xl flex justify-between"><span>Saldo Disp. Neto (Vig.-Prev.):</span><span className="font-mono font-bold">{formatCurrency(globalMetrics.vigente - globalMetrics.preventivo)}</span></div>
+                                        <div className="p-3.5 bg-blue-950/40 text-blue-400 rounded-xl flex justify-between"><span>Saldo Ley (Vig.-Dev.):</span><span className="font-mono font-bold">{formatCurrency(globalMetrics.saldo)}</span></div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-center gap-4">
+                                    <button onClick={() => setShowWelcome(false)} className="w-full max-w-sm py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black uppercase text-xs tracking-widest">INGRESAR AL PANEL</button>
+                                    <button onClick={handleLogout} className="text-xs text-slate-500 hover:text-rose-500 uppercase tracking-wider">Cerrar Sesión</button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                return (
+                    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans p-3 sm:p-6">
+                        <header className="max-w-7xl mx-auto flex items-center justify-between py-4 border-b border-slate-800 mb-8">
+                            <div className="flex items-center gap-4">
+                                {(selectedGroupId || selectedProgramId) && (
+                                    <button onClick={() => { if (selectedProgramId) setSelectedProgramId(null); else setSelectedGroupId(null); }} className="px-4 py-2 bg-blue-600 text-white font-black text-xs uppercase tracking-wider rounded-xl hover:bg-blue-500">
+                                        ← VOLVER
+                                    </button>
+                                )}
+                                <div>
+                                    <h1 className="text-lg font-black uppercase tracking-tight">SIMOPRES <span className="text-blue-500">PRO</span></h1>
+                                    <p className="text-[10px] text-blue-400 font-mono uppercase">{data?.fecha ? new Date(data.fecha).toLocaleDateString('es-BO') : 'En línea'}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <button onClick={() => setIsGreen(!isGreen)} className="p-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-black uppercase">
+                                    {isGreen ? "🌿 Verde" : "💎 Azul"}
+                                </button>
+                                <button onClick={handleLogout} className="p-2.5 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-black uppercase">
+                                    Salir
+                                </button>
+                            </div>
+                        </header>
+
+                        <main className="max-w-7xl mx-auto space-y-8">
+                            {!selectedGroupId ? (
+                                <div className="space-y-8">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                        <div className="lg:col-span-2 glass-panel p-6 sm:p-8 rounded-[32px] relief-card flex flex-col md:flex-row items-center gap-8">
+                                            <DonutChart vigente={globalMetrics.vigente} preventivo={globalMetrics.preventivo} saldo={globalMetrics.vigente - globalMetrics.preventivo} isDark={isDark} />
+                                            <div className="flex-1 w-full space-y-2.5 text-xs">
+                                                <div className="p-3 bg-slate-800/40 rounded-xl flex justify-between"><span>Presupuesto Inicial:</span><span className="font-mono font-bold">{formatCurrency(globalMetrics.vigente)}</span></div>
+                                                <div className="p-3 bg-indigo-950/20 text-indigo-400 rounded-xl flex justify-between"><span>Devengado:</span><span className="font-mono font-bold">{formatCurrency(globalMetrics.devengado)}</span></div>
+                                                <div className="p-3 bg-purple-950/20 text-purple-400 rounded-xl flex justify-between"><span>Preventivo:</span><span className="font-mono font-bold">{formatCurrency(globalMetrics.preventivo)}</span></div>
+                                                <div className="p-3 bg-amber-950/20 text-amber-400 rounded-xl flex justify-between"><span>Saldo Disp. Neto (Vig.-Prev.):</span><span className="font-mono font-bold">{formatCurrency(globalMetrics.vigente - globalMetrics.preventivo)}</span></div>
+                                                <div className="p-3.5 bg-blue-500/10 text-blue-400 rounded-xl flex justify-between font-black text-sm"><span>Saldo Disp. Ley:</span><span className="font-mono">{formatCurrency(globalMetrics.saldo)}</span></div>
+                                            </div>
+                                        </div>
+                                        <div className="glass-panel p-6 sm:p-8 rounded-[32px] relief-card flex flex-col justify-between">
+                                            <div>
+                                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Búsqueda Rápida</h3>
+                                                <input type="text" placeholder="Buscar unidad o programa..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-800/60 border border-slate-700 rounded-2xl p-3.5 text-xs font-bold outline-none" />
+                                            </div>
+                                            <div className="p-4 bg-emerald-950/20 border border-emerald-500/30 rounded-xl mt-6">
+                                                <span className="text-[10px] text-emerald-400 uppercase font-black tracking-widest">● SISTEMA ACTIVO</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                        {filteredGroups.map(g => {
+                                            const pct = g.vigente > 0 ? (g.preventivo / g.vigente) * 100 : 0;
+                                            const saldoNeto = g.vigente - g.preventivo;
+                                            const theme = getCatTheme(g.id, isGreen, isDark);
+                                            return (
+                                                <button key={g.id} onClick={() => setSelectedGroupId(g.id)} className={`glass-panel p-6 rounded-[28px] text-left relief-card ${theme.bg} ${theme.border} flex flex-col justify-between min-h-[180px]`}>
+                                                    <div>
+                                                        <div className="flex justify-between items-start mb-3">
+                                                            <span className="text-[9px] font-mono uppercase text-slate-400">UNIDAD {g.id}</span>
+                                                            <span className="text-xs font-black font-mono text-blue-400">{pct.toFixed(1)}%</span>
+                                                        </div>
+                                                        <h4 className="text-sm font-black uppercase line-clamp-2">{g.config.n}</h4>
+                                                    </div>
+                                                    <div className="pt-4 border-t border-slate-800/40 mt-4">
+                                                        <span className="text-[8px] uppercase tracking-wider text-slate-400 block mb-0.5">Saldo Disp. Neto</span>
+                                                        <span className="text-sm font-black font-mono text-emerald-400">{formatCurrency(saldoNeto)}</span>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ) : (!selectedProgramId && currentGroup) ? (
+                                <div className="space-y-8">
+                                    <div className="glass-panel p-6 sm:p-10 rounded-[36px] relief-card flex flex-col md:flex-row items-center gap-8">
+                                        <DonutChart vigente={currentGroup.vigente} preventivo={currentGroup.preventivo} saldo={currentGroup.vigente - currentGroup.preventivo} isDark={isDark} />
+                                        <div className="flex-1">
+                                            <span className="text-[10px] text-blue-400 font-black uppercase tracking-widest">DESGLOSE DE UNIDAD</span>
+                                            <h2 className="text-2xl font-black uppercase mt-1 mb-4">{currentGroup.config.n}</h2>
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                                                <div className="p-3 bg-slate-800/40 rounded-xl"><span className="text-[8px] text-slate-400 uppercase block">Vigente</span><span className="font-mono font-bold">{formatCurrency(currentGroup.vigente)}</span></div>
+                                                <div className="p-3 bg-purple-950/30 text-purple-400 rounded-xl"><span className="text-[8px] uppercase block">Preventivo</span><span className="font-mono font-bold">{formatCurrency(currentGroup.preventivo)}</span></div>
+                                                <div className="p-3 bg-amber-950/30 text-amber-400 rounded-xl"><span className="text-[8px] uppercase block">Saldo Neto</span><span className="font-mono font-bold">{formatCurrency(currentGroup.vigente - currentGroup.preventivo)}</span></div>
+                                                <div className="p-3 bg-emerald-950/30 text-emerald-400 rounded-xl"><span className="text-[8px] uppercase block">Saldo Ley</span><span className="font-mono font-bold">{formatCurrency(currentGroup.saldo)}</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {Object.values(currentGroup.programs).map(p => {
+                                            const pct = p.vigente > 0 ? (p.preventivo / p.vigente) * 100 : 0;
+                                            const saldoNeto = p.vigente - p.preventivo;
+                                            return (
+                                                <button key={p.id} onClick={() => setSelectedProgramId(p.id)} className="glass-panel p-6 rounded-[28px] text-left relief-card flex justify-between items-center">
+                                                    <div className="flex-1 pr-6">
+                                                        <span className="text-[9px] font-mono text-blue-400 uppercase">CÓDIGO {p.id}</span>
+                                                        <h4 className="text-sm font-black uppercase line-clamp-1 mt-1 mb-2">{p.nombre}</h4>
+                                                        <span className="text-xs font-mono font-bold text-slate-300">{pct.toFixed(1)}% Preventivo</span>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className="text-[8px] text-slate-400 uppercase block">Saldo Disp. Neto</span>
+                                                        <span className="text-sm font-black font-mono text-emerald-400">{formatCurrency(saldoNeto)}</span>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ) : (currentGroup && currentProgram) ? (
+                                <div className="space-y-8 max-w-4xl mx-auto">
+                                    <div className="glass-panel p-6 sm:p-10 rounded-[36px] relief-card flex flex-col md:flex-row items-center gap-8">
+                                        <DonutChart vigente={currentProgram.vigente} preventivo={currentProgram.preventivo} saldo={currentProgram.vigente - currentProgram.preventivo} isDark={isDark} />
+                                        <div className="flex-1">
+                                            <span className="text-[10px] text-blue-400 font-black uppercase tracking-widest">PROG. {currentProgram.id}</span>
+                                            <h2 className="text-xl sm:text-2xl font-black uppercase mt-1 mb-4">{currentProgram.nombre}</h2>
+                                            <button onClick={() => generateGroupPDF(currentGroup)} className="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl mb-4">
+                                                📄 GENERAR PDF COMPLETO
+                                            </button>
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                                                <div className="p-3 bg-slate-800/40 rounded-xl"><span className="text-[8px] text-slate-400 uppercase block">Vigente</span><span className="font-mono font-bold">{formatCurrency(currentProgram.vigente)}</span></div>
+                                                <div className="p-3 bg-purple-950/30 text-purple-400 rounded-xl"><span className="text-[8px] uppercase block">Preventivo</span><span className="font-mono font-bold">{formatCurrency(currentProgram.preventivo)}</span></div>
+                                                <div className="p-3 bg-amber-950/30 text-amber-400 rounded-xl"><span className="text-[8px] uppercase block">Saldo Neto</span><span className="font-mono font-bold">{formatCurrency(currentProgram.vigente - currentProgram.preventivo)}</span></div>
+                                                <div className="p-3 bg-emerald-950/30 text-emerald-400 rounded-xl"><span className="text-[8px] uppercase block">Saldo Ley</span><span className="font-mono font-bold">{formatCurrency(currentProgram.saldo)}</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {currentProgram.items.map((item, idx) => {
+                                            const pPrev = Number(item.calculatedPreventivo || item.preventivo || 0);
+                                            const pct = item.vigente > 0 ? (pPrev / item.vigente) * 100 : 0;
+                                            const saldoNeto = Number(item.vigente || 0) - pPrev;
+                                            return (
+                                                <div key={idx} onClick={() => setSelectedItemIdx(idx)} className="glass-panel p-5 rounded-2xl relief-card cursor-pointer hover:border-blue-500/50">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="text-[10px] font-mono font-black text-blue-400">PARTIDA {item.objeto}</span>
+                                                        <span className="text-xs font-mono font-bold text-slate-300">{pct.toFixed(1)}%</span>
+                                                    </div>
+                                                    <h5 className="text-xs font-black uppercase mb-3">{item.descripcion}</h5>
+                                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
+                                                        <div><span className="text-slate-400">Vigente:</span> <span className="font-mono font-bold">{formatCurrency(item.vigente)}</span></div>
+                                                        <div><span className="text-purple-400">Preventivo:</span> <span className="font-mono font-bold">{formatCurrency(pPrev)}</span></div>
+                                                        <div><span className="text-amber-400">Saldo Neto:</span> <span className="font-mono font-bold">{formatCurrency(saldoNeto)}</span></div>
+                                                        <div><span className="text-emerald-400">Saldo Ley:</span> <span className="font-mono font-bold">{formatCurrency(item.calculatedSaldo)}</span></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ) : null}
+                        </main>
+
+                        {currentItem && (
+                            <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setSelectedItemIdx(null)}>
+                                <div className="bg-slate-900 border border-slate-700 p-6 sm:p-8 rounded-3xl max-w-lg w-full" onClick={e => e.stopPropagation()}>
+                                    <span className="text-xs font-mono text-blue-400 uppercase">PARTIDA {currentItem.objeto}</span>
+                                    <h3 className="text-lg font-black uppercase mt-1 mb-4">{currentItem.descripcion}</h3>
+                                    <div className="p-4 bg-slate-800/60 rounded-2xl text-xs space-y-3 mb-6">
+                                        <p className="font-bold text-slate-300">{getPartidaExplanation(currentItem.objeto, currentItem.descripcion).uso}</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 text-xs mb-6">
+                                        <div className="p-3 bg-slate-800 rounded-xl"><span>Vigente:</span> <span className="font-mono font-bold block">{formatCurrency(currentItem.vigente)}</span></div>
+                                        <div className="p-3 bg-purple-950/40 text-purple-400 rounded-xl"><span>Preventivo:</span> <span className="font-mono font-bold block">{formatCurrency(currentItem.calculatedPreventivo)}</span></div>
+                                        <div className="p-3 bg-amber-950/40 text-amber-400 rounded-xl"><span>Saldo Disp. Neto:</span> <span className="font-mono font-bold block">{formatCurrency(currentItem.vigente - currentItem.calculatedPreventivo)}</span></div>
+                                        <div className="p-3 bg-emerald-950/40 text-emerald-400 rounded-xl"><span>Saldo Ley:</span> <span className="font-mono font-bold block">{formatCurrency(currentItem.calculatedSaldo)}</span></div>
+                                    </div>
+                                    <button onClick={() => setSelectedItemIdx(null)} className="w-full py-3 bg-blue-600 text-white rounded-xl font-black uppercase text-xs">CERRAR</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+
+            const standaloneRoot = ReactDOM.createRoot(document.getElementById('root'));
+            standaloneRoot.render(<StandaloneApp />);
+        }
+    </script>
+
+    <!-- En desarrollo con Vite, carga el código modular en TypeScript -->
 </body>
 </html>
